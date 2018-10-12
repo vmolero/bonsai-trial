@@ -16,5 +16,8 @@
             "name": "Victor Molero",
             "email": "victor.molero@gmail.com"
         }
-    ]
+    ],
+    "require": {
+        "symfony/routing": "^4.1"
+    }
 }
