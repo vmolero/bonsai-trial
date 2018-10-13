@@ -19,9 +19,7 @@ try {
     /**************************************
     * Create tables                       *
     **************************************/
-    // Drop table messages from file db
-    $file_db->exec("DROP TABLE bonsai");
-
+    
     // Create table messages
     $file_db->exec("CREATE TABLE IF NOT EXISTS bonsai (
         id INTEGER PRIMARY KEY,
@@ -35,7 +33,9 @@ try {
     /**************************************
     * Set initial data                    *
     **************************************/
- 
+    // Drop table messages from file db
+    $file_db->exec("DELETE FROM bonsai");
+
     // Array with some test data to insert to database
     $data = array(
         array('titulo' => 'Bonsai 1',
@@ -94,7 +94,7 @@ try {
         // Execute statement
         $stmt->execute();
     }
-    /*
+    
     // Select all data from memory db messages table
     $result = $file_db->query('SELECT * FROM bonsai');
 
@@ -107,7 +107,7 @@ try {
         echo "Regar: " . $row['regar'] . "\n";
         echo "\n";
     }
-     */
+    
 } catch (PDOException $e) {
     // Print PDOException message
     echo $e->getMessage();
