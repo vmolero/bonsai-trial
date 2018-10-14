@@ -14,14 +14,19 @@ if (!file_exists('bonsaitrial.sqlite3')) {
 
 $routes = new RouteCollection();
 $routes->add('bonsai_list', new Route('/bonsai/all', array(
-    '_controller' => [BonsaiController::class, 'list'],
-    '_format'     => 'json'
+    '_controller' => [BonsaiController::class, 'list']
 )));
-$routes->add('bonsai_show', new Route('/bonsai/{id}', array(
-    '_controller' => [BonsaiController::class, 'show'],
-    '_format'     => 'json'
-), array(
-    'id' => '\d+'
+$routes->add('bonsai_abono', new Route('/bonsai/abono/{id}/{fecha}', array(
+    '_controller' => [BonsaiController::class, 'abonar']
+)));
+$routes->add('bonsai_riego', new Route('/bonsai/riego/{id}/{fecha}', array(
+    '_controller' => [BonsaiController::class, 'regar']
+)));
+$routes->add('bonsai_transplante', new Route('/bonsai/transplante/{id}/{fecha}', array(
+    '_controller' => [BonsaiController::class, 'transplantar']
+)));
+$routes->add('bonsai_pulverizado', new Route('/bonsai/pulverizado/{id}/{fecha}', array(
+    '_controller' => [BonsaiController::class, 'pulverizar']
 )));
 
 $context = new RequestContext('/', 'GET', 'localhost', 'http', 8000);
@@ -37,4 +42,5 @@ foreach ($parameters as $index => $value) {
 }
 $metodoReflexionado = new ReflectionMethod($controllerClassName, $action);
 header('Content-type: application/json');
+header('Access-Control-Allow-Origin: *');
 echo json_encode($metodoReflexionado->invokeArgs(new $controllerClassName(), $args));

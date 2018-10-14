@@ -19,16 +19,20 @@ try {
     /**************************************
     * Create tables                       *
     **************************************/
-    
+    if (isset($_GET['drop'])) {
+        $file_db->exec("DROP TABLE bonsai");
+    }
+
     // Create table messages
     $file_db->exec("CREATE TABLE IF NOT EXISTS bonsai (
         id INTEGER PRIMARY KEY,
         titulo TEXT,
         img TEXT,
         tipo INTEGER,
-        abonar INTEGER,
-        transplantar INTEGER,
-        regar INTEGER)");
+        abonado TEXT,
+        transplantado TEXT,
+        regado TEXT,
+        pulverizado TEXT)");
     
     /**************************************
     * Set initial data                    *
@@ -40,34 +44,39 @@ try {
     $data = array(
         array('titulo' => 'Bonsai 1',
               'tipo' => 1,
-              'img' => 'ficus.jpg',
-              'abonar' => 1,
-              'transplantar' => 1,
-              'regar' => 1),
+              'img' => 'ficus_200x200.png',
+              'abonado' => '',
+              'transplantado' => '',
+              'regado' => '',
+              'pulverizado' => ''),
         array('titulo' => 'Bonsai 2',
               'tipo' => 1,
-              'img' => 'ficus.jpg',
-              'abonar' => 1,
-              'transplantar' => 1,
-              'regar' => 1),
+              'img' => 'ficus_200x200.png',
+              'abonado' => '',
+              'transplantado' => '',
+              'regado' => '',
+              'pulverizado' => ''),
         array('titulo' => 'Bonsai 3',
-              'tipo' => 1,
-              'img' => 'manzano.jpg',
-              'abonar' => 1,
-              'transplantar' => 2,
-              'regar' => 1),
+              'tipo' => 2,
+              'img' => 'manzano_200x200.png',
+              'abonado' => '',
+              'transplantado' => '',
+              'regado' => '',
+              'pulverizado' => ''),
         array('titulo' => 'Bonsai 4',
-              'tipo' => 1,
-              'img' => 'olmo.jpg',
-              'abonar' => 1,
-              'transplantar' => 3,
-              'regar' => 1),
+              'tipo' => 3,
+              'img' => 'olmo_200x200.png',
+              'abonado' => '',
+              'transplantado' => '',
+              'regado' => '',
+              'pulverizado' => ''),
         array('titulo' => 'Bonsai 5',
-              'tipo' => 1,
-              'img' => 'olivo.jpg',
-              'abonar' => 1,
-              'transplantar' => 4,
-              'regar' => 1)
+              'tipo' => 4,
+              'img' => 'olivo_200x200.png',
+              'abonado' => '',
+              'transplantado' => '',
+              'regado' => '',
+              'pulverizado' => '')
     );
     
     /**************************************
@@ -75,17 +84,18 @@ try {
     **************************************/
  
     // Prepare INSERT statement to SQLite3 file db
-    $insert = "INSERT INTO bonsai (titulo, tipo, img, abonar, transplantar, regar) 
-                VALUES (:titulo, :tipo, :img, :abonar, :transplantar, :regar)";
+    $insert = "INSERT INTO bonsai (titulo, tipo, img, abonado, transplantado, regado, pulverizado) 
+                VALUES (:titulo, :tipo, :img, :abonado, :transplantado, :regado, :pulverizado)";
     $stmt = $file_db->prepare($insert);
  
     // Bind parameters to statement variables
     $stmt->bindParam(':titulo', $titulo);
     $stmt->bindParam(':tipo', $tipo);
     $stmt->bindParam(':img', $img);
-    $stmt->bindParam(':abonar', $abonar);
-    $stmt->bindParam(':transplantar', $transplantar);
-    $stmt->bindParam(':regar', $regar);
+    $stmt->bindParam(':abonado', $abonado);
+    $stmt->bindParam(':transplantado', $transplantado);
+    $stmt->bindParam(':regado', $regado);
+    $stmt->bindParam(':pulverizado', $pulverizado);
 
     // Loop thru all messages and execute prepared insert statement
     foreach ($data as $m) {
@@ -96,18 +106,18 @@ try {
     }
     
     // Select all data from memory db messages table
+    /*
     $result = $file_db->query('SELECT * FROM bonsai');
 
     foreach ($result as $row) {
         echo "Id: " . $row['id'] . "\n";
         echo "Title: " . $row['titulo'] . "\n";
         echo "Img: " . $row['img'] . "\n";
-        echo "Abonar: " . $row['abonar'] . "\n";
-        echo "Transplantar: " . $row['transplantar'] . "\n";
-        echo "Regar: " . $row['regar'] . "\n";
+        echo "abonado: " . $row['abonado'] . "\n";
+        echo "transplantado: " . $row['transplantado'] . "\n";
+        echo "regado: " . $row['regado'] . "\n";
         echo "\n";
-    }
-    
+    }*/
 } catch (PDOException $e) {
     // Print PDOException message
     echo $e->getMessage();
