@@ -16,23 +16,32 @@ $routes = new RouteCollection();
 $routes->add('bonsai_list', new Route('/bonsai/all', array(
     '_controller' => [BonsaiController::class, 'list']
 )));
-$routes->add('bonsai_abono', new Route('/bonsai/abono/{id}/{fecha}', array(
+$routes->add('bonsai_abono', new Route('/bonsai/abonar/{id}/{fecha}', array(
     '_controller' => [BonsaiController::class, 'abonar']
 )));
-$routes->add('bonsai_riego', new Route('/bonsai/riego/{id}/{fecha}', array(
+$routes->add('bonsai_riego', new Route('/bonsai/regar/{id}/{fecha}', array(
     '_controller' => [BonsaiController::class, 'regar']
 )));
-$routes->add('bonsai_transplante', new Route('/bonsai/transplante/{id}/{fecha}', array(
+$routes->add('bonsai_transplante', new Route('/bonsai/transplantar/{id}/{fecha}', array(
     '_controller' => [BonsaiController::class, 'transplantar']
 )));
-$routes->add('bonsai_pulverizado', new Route('/bonsai/pulverizado/{id}/{fecha}', array(
+$routes->add('bonsai_pulverizado', new Route('/bonsai/pulverizar/{id}/{fecha}', array(
     '_controller' => [BonsaiController::class, 'pulverizar']
 )));
-
-$context = new RequestContext('/', 'GET', 'localhost', 'http', 8000);
+//var_dump(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY));
+//die;
+$context = new RequestContext(
+    '/', 
+    'GET', 
+    'localhost', 
+    'http', 
+    8000,
+    443,
+    parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),
+    parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY) ?: '');
 $matcher = new UrlMatcher($routes, $context);
 
-$parameters = $matcher->match($_SERVER['REQUEST_URI']);
+$parameters = $matcher->match(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 list($controllerClassName, $action) = $parameters['_controller'];
 $args = [];
 foreach ($parameters as $index => $value) {

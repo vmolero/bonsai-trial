@@ -1,14 +1,14 @@
 const Elemento = function ({ id, titulo, img, tipo, tipoNombre, abonadoFecha, regadoFecha, transplantadoFecha, pulverizadoFecha }) {
-    var olmoEspecifico = parseInt(tipo) === Bonsai.Olmo ? `<button class="btnAccion" bonsai-id="${id}" accion="pulverizar">Pulverizar</button><span>${pulverizadoFecha}</span><br />` : '';
+    var olmoEspecifico = parseInt(tipo) === Bonsai.Olmo ? `<button class="btnAccion" bonsai-id="${id}" accion="pulverizar">Pulverizar</button><span bonsai-id="${id}" class="pulverizar">${pulverizadoFecha}</span><br />` : '';
     return `
     <div class="list-group-item">
       <div class="image">
         <img src="imgs/${img}" />
       </div>
-      <p class="list-group-item-text">${titulo} ${tipoNombre}</p><span class="respuesta" bonsai-id="${id}"></span>
-      <button class="btnAccion" bonsai-id="${id}" accion="regar">Regar</button><span>${regadoFecha}</span><br />
-      <button class="btnAccion" bonsai-id="${id}" accion="abonar">Abonar</button><span>${abonadoFecha}</span><br />
-      <button class="btnAccion" bonsai-id="${id}" accion="transplantar">Transplantar</button><span>${transplantadoFecha}</span><br />
+      <p class="list-group-item-text">${titulo} ${tipoNombre}</p>
+      <button class="btnAccion" bonsai-id="${id}" accion="regar">Regar</button><span bonsai-id="${id}" class="regar">${regadoFecha}</span><br />
+      <button class="btnAccion" bonsai-id="${id}" accion="abonar">Abonar</button><span bonsai-id="${id}" class="abonar">${abonadoFecha}</span><br />
+      <button class="btnAccion" bonsai-id="${id}" accion="transplantar">Transplantar</button><span bonsai-id="${id}" class="transplantar">${transplantadoFecha}</span><br />
       ${olmoEspecifico}
     </div>
   `;
@@ -38,10 +38,10 @@ function parseNombre(data, item, index) {
 
 function parseNecesidades(data, item, index) {
     data[index]['abonadoFecha'] = item.abonado == '' ? "Nunca" : item.abonado;
-    data[index]['regadoFecha'] = item.regado == '' ? "Nunca" : item.regado;
-    data[index]['transplantadoFecha'] = item.transplantado == '' ? "Nunca" : item.transplantado;
+    data[index]['regadoFecha'] = item.regado == '' ? "" : item.regado;
+    data[index]['transplantadoFecha'] = item.transplantado == '' ? "" : item.transplantado;
     if (parseInt(item.tipo) === Bonsai.Olmo) {
-        data[index]['pulverizadoFecha'] = item.pulverizado == '' ? "Nunca" : item.pulverizado;
+        data[index]['pulverizadoFecha'] = item.pulverizado == '' ? "" : item.pulverizado;
     }
 }
 
@@ -71,26 +71,21 @@ window.onload = function() {
             }
         );
         $('body').on('accion', function (evt, id, accion) {
-            /*$.getJSON("http://localhost:8000/bonsai/"+accion+"/"+id+"/"+$('#fechaHoy').value, null,
-                function (data, textStatus, jqXHR) {
-                    console.log(data);
-                }
-            );*/
+            function callback(response) {
+                console.log(response);
+            }
             $.ajax({
                 url: "http://localhost:8000/bonsai/" + accion + "/" + id + "/" + $('#fechaHoy').val(),
-             
-                // The name of the callback parameter, as specified by the YQL service
                 jsonp: "callback",
-             
-                // Tell jQuery we're expecting JSONP
                 dataType: "jsonp",
-             
-                // Tell YQL what we want and that we want JSON
                 data: null,
-             
-                // Work with the response
                 success: function( response ) {
-                    console.log( response ); // server response
+                    var res = JSON.parse(response);
+                    if (accion == 'abonar') {
+                        if (res) {
+                            $('span.'+ accion +'[bonsai-id="'+ id +'"]').text(today());
+                        }
+                    }
                 }
             });
         });

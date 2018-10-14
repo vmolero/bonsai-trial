@@ -10,6 +10,9 @@ class RiegoVisitor
 
     public function __construct(\DateTime $fechaDelAnyo = null)
     {
+        if ($fechaDelAnyo === null) {
+            $fechaDelAnyo = new \DateTime('now');
+        }
         $this->fecha = $fechaDelAnyo;
     }
 

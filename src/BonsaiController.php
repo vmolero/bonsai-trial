@@ -20,10 +20,8 @@ class BonsaiController
     public function abonar(string $id, string $fechaRecibida)
     {
         $elemento = $this->fetch(intval($id));
-        $riego = new RiegoVisitor();
-        $abono = new AbonoStrategy();
         /** @var Abonable $bonsai */
-        $bonsai = $this->BonsaiFactory($elemento, $riego, $abono);
+        $bonsai = $this->BonsaiFactory($elemento, null, $fechaRecibida);
         $fecha = new \DateTime($fechaRecibida);
         if ($bonsai->tengoQueAbonar($fecha)) {
             $bonsai->abonar($fecha);
@@ -33,12 +31,13 @@ class BonsaiController
         return false;
     }
 
-    public function regar($id)
+    public function regar(string $id, string $fechaRecibida)
     {
-        $elemento = $this->fetch($id);
-        /** @var Abonable $bonsai */
-        $bonsai = $this->BonsaiFactory($elemento);
-        $bonsai->abonar(new \DateTime($fecha));
+        $elemento = $this->fetch(intval($id));
+        /** @var Regable $bonsai */
+        $bonsai = $this->BonsaiFactory($elemento, $fechaRecibida);
+        
+        return $bonsai->riego();
     }
 
     public function trasplantar($id)
@@ -54,6 +53,7 @@ class BonsaiController
         $elemento = $this->fetch($id);
         /** @var Abonable $bonsai */
         $bonsai = $this->bonsaiFactory($elemento);
+        
         $fecha = new \DateTime($fecha);
         if ($bonsai->abonar($fecha)) {
             $this->saveAbonar($bonsai, $fecha);
@@ -62,10 +62,17 @@ class BonsaiController
         return false;
     }
 
-    private function bonsaiFactory(array $elemento, RiegoVisitor $riego, AbonoStrategy $abono): BonsaiTree
+    private function bonsaiFactory(array $elemento, $fechaRiego = null, $fechaAbono = null): BonsaiTree
     {
         $bonsai = null;
-        
+        $riego = new RiegoVisitor($fechaRiego ? new \DateTime($fechaRiego) : null);
+        if (isset($elemento['regado']) && $elemento['regado'] !== '') {
+            $riego = new RiegoVisitor(new \DateTime($elemento['regado']));
+        }
+        $abono = new AbonoStrategy($fechaAbono ? new \DateTime($fechaAbono) : null);
+        if (isset($elemento['abonado']) && $elemento['abonado'] !== '') {
+            $abono = new AbonoStrategy(new \DateTime($elemento['abonado']));
+        }
         switch ($elemento['tipo']) {
             case TipoBonsaiEnum::FICUS:
                 $bonsai = new Ficus($riego, $abono);

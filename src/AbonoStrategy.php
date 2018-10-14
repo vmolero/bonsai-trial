@@ -11,7 +11,7 @@ class AbonoStrategy
 
     public function __construct(\DateTime $time = null)
     {
-        $this->fechaUltimoAbono = $time;
+        // $this->fechaUltimoAbono = $time;
     }
 
     public function getFechaAbono(): \DateTime
