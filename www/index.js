@@ -84,7 +84,7 @@ window.onload = function() {
             }
         );
         $.getJSON(
-            "https://www.googleapis.com/youtube/v3/search?q=bonsai&part=snippet&key=AIzaSyDuwjQIxvVm4Ci3jpm_UhGY5v2XCGWzBWE&maxResults=10",
+            "https://www.googleapis.com/youtube/v3/search?q=bonsai&part=snippet&key=token&maxResults=10",
             null,
             function (data, textStatus, jqXHR) {
                 $('#youtube').html(data.items.map(VideoYoutube).join(''));
