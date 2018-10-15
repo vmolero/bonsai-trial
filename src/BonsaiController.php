@@ -40,39 +40,29 @@ class BonsaiController
         return $bonsai->riego();
     }
 
-    public function trasplantar($id)
+    public function transplantar(string $id, string $fechaRecibida)
     {
-        $elemento = $this->fetch($id);
-        /** @var Abonable $bonsai */
+        $elemento = $this->fetch(intval($id));
+        /** @var BonsaiTree $bonsai */
         $bonsai = $this->BonsaiFactory($elemento);
-        $bonsai->abonar(new \DateTime($fecha));
+        return $bonsai->transplantar(new \DateTime($fechaRecibida));
     }
 
     public function pulverizar($id)
     {
         $elemento = $this->fetch($id);
-        /** @var Abonable $bonsai */
+        /** @var Pulverizable $bonsai */
         $bonsai = $this->bonsaiFactory($elemento);
         
-        $fecha = new \DateTime($fecha);
-        if ($bonsai->abonar($fecha)) {
-            $this->saveAbonar($bonsai, $fecha);
-            return true;
-        }
-        return false;
+        return $bonsai->pulverizar();
     }
 
     private function bonsaiFactory(array $elemento, $fechaRiego = null, $fechaAbono = null): BonsaiTree
     {
         $bonsai = null;
         $riego = new RiegoVisitor($fechaRiego ? new \DateTime($fechaRiego) : null);
-        if (isset($elemento['regado']) && $elemento['regado'] !== '') {
-            $riego = new RiegoVisitor(new \DateTime($elemento['regado']));
-        }
-        $abono = new AbonoStrategy($fechaAbono ? new \DateTime($fechaAbono) : null);
-        if (isset($elemento['abonado']) && $elemento['abonado'] !== '') {
-            $abono = new AbonoStrategy(new \DateTime($elemento['abonado']));
-        }
+        $abono = new AbonoStrategy();
+        
         switch ($elemento['tipo']) {
             case TipoBonsaiEnum::FICUS:
                 $bonsai = new Ficus($riego, $abono);
@@ -88,6 +78,9 @@ class BonsaiController
                 break;
             default:
                 throw new \LogicException('Error tipo bonsai');
+        }
+        if (isset($elemento['abonado']) && $elemento['abonado'] !== '') {
+            $bonsai->abonar(new \DateTime($elemento['abonado']));
         }
         return $bonsai;
     }

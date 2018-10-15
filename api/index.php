@@ -28,20 +28,21 @@ $routes->add('bonsai_transplante', new Route('/bonsai/transplantar/{id}/{fecha}'
 $routes->add('bonsai_pulverizado', new Route('/bonsai/pulverizar/{id}/{fecha}', array(
     '_controller' => [BonsaiController::class, 'pulverizar']
 )));
-//var_dump(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY));
-//die;
+
 $context = new RequestContext(
-    '/', 
-    'GET', 
-    'localhost', 
-    'http', 
+    '/',
+    'GET',
+    'localhost',
+    'http',
     8000,
     443,
     parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH),
-    parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY) ?: '');
+    parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY) ?: ''
+);
 $matcher = new UrlMatcher($routes, $context);
 
 $parameters = $matcher->match(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+
 list($controllerClassName, $action) = $parameters['_controller'];
 $args = [];
 foreach ($parameters as $index => $value) {
@@ -49,7 +50,14 @@ foreach ($parameters as $index => $value) {
         $args[] = $value;
     }
 }
-$metodoReflexionado = new ReflectionMethod($controllerClassName, $action);
-header('Content-type: application/json');
+$metodo = new ReflectionMethod($controllerClassName, $action);
+
 header('Access-Control-Allow-Origin: *');
-echo json_encode($metodoReflexionado->invokeArgs(new $controllerClassName(), $args));
+$response = json_encode($metodo->invokeArgs(new $controllerClassName(), $args));
+if (isset($_GET['callback'])) {
+    header('Content-type: application/javascript');
+    echo $_GET['callback']."(".$response.")";
+} else {
+    header('Content-type: application/json');
+    echo $response;
+}

@@ -1,4 +1,4 @@
-const Elemento = function ({ id, titulo, img, tipo, tipoNombre, abonadoFecha, regadoFecha, transplantadoFecha, pulverizadoFecha }) {
+const Elemento = function ({ id, titulo, img, tipo, tipoNombre, abonadoFecha, regadoFecha, transplantadoFecha, pulverizadoFecha, abonadoRepuesta }) {
     var olmoEspecifico = parseInt(tipo) === Bonsai.Olmo ? `<button class="btnAccion" bonsai-id="${id}" accion="pulverizar">Pulverizar</button><span bonsai-id="${id}" class="pulverizar">${pulverizadoFecha}</span><br />` : '';
     return `
     <div class="list-group-item">
@@ -7,9 +7,22 @@ const Elemento = function ({ id, titulo, img, tipo, tipoNombre, abonadoFecha, re
       </div>
       <p class="list-group-item-text">${titulo} ${tipoNombre}</p>
       <button class="btnAccion" bonsai-id="${id}" accion="regar">Regar</button><span bonsai-id="${id}" class="regar">${regadoFecha}</span><br />
-      <button class="btnAccion" bonsai-id="${id}" accion="abonar">Abonar</button><span bonsai-id="${id}" class="abonar">${abonadoFecha}</span><br />
+      <button class="btnAccion" bonsai-id="${id}" accion="abonar">Abonar</button><span bonsai-id="${id}" class="abonar">${abonadoFecha}</span><span id="respuesta-abonar-${id}"></span><br />
       <button class="btnAccion" bonsai-id="${id}" accion="transplantar">Transplantar</button><span bonsai-id="${id}" class="transplantar">${transplantadoFecha}</span><br />
       ${olmoEspecifico}
+    </div>
+  `;
+};
+
+const VideoYoutube = function (item) {
+    var img = item.snippet.thumbnails.default.url;
+    return `
+    <div class="list-group-item">
+      <div class="image">
+        <img src="${img}" />
+      </div>
+      <p class="list-group-item-text"><a href="https://www.youtube.com/watch?v=${item.id.videoId}">${item.snippet.title}</a></p>
+      <p class="list-group-item-text">${item.snippet.description}</p>
     </div>
   `;
 };
@@ -70,23 +83,31 @@ window.onload = function() {
                 });
             }
         );
-        $('body').on('accion', function (evt, id, accion) {
-            function callback(response) {
-                console.log(response);
+        $.getJSON(
+            "https://www.googleapis.com/youtube/v3/search?q=bonsai&part=snippet&key=AIzaSyDuwjQIxvVm4Ci3jpm_UhGY5v2XCGWzBWE&maxResults=10",
+            null,
+            function (data, textStatus, jqXHR) {
+                $('#youtube').html(data.items.map(VideoYoutube).join(''));
             }
+        )
+        $('body').on('accion', function (evt, id, accion) {
+            $fechaSpanAntes = $('span.'+ accion +'[bonsai-id="'+ id +'"]').text();
             $.ajax({
                 url: "http://localhost:8000/bonsai/" + accion + "/" + id + "/" + $('#fechaHoy').val(),
                 jsonp: "callback",
                 dataType: "jsonp",
                 data: null,
                 success: function( response ) {
-                    var res = JSON.parse(response);
                     if (accion == 'abonar') {
-                        if (res) {
-                            $('span.'+ accion +'[bonsai-id="'+ id +'"]').text(today());
+                        if (!!response) {
+                            $('span.'+ accion +'[bonsai-id="'+ id +'"]').text($('#fechaHoy').val());
                         }
+                        $('#respuesta-abonar-'+id).text(" " + response);
+                    } else {
+                        $('span.'+ accion +'[bonsai-id="'+ id +'"]').text(response);
                     }
-                }
+                },
+
             });
         });
     });
